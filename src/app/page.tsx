@@ -193,7 +193,7 @@ export default function Home() {
                   alt="Chemical Diagram"
                   width={500}
                   height={300}
-                  style={{objectFit: 'contain', width: '100%', height: 'auto'}}
+                  style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
                 />
               ) : (
                 <Image

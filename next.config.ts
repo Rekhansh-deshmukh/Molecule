@@ -1,13 +1,20 @@
-import type {NextConfig} from 'next';
+// next.config.js
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cactus.nci.nih.gov',
+        pathname: '/chemical/structure/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.commonchemistry.org',
+      },
+    ],
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
