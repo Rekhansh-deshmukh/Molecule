@@ -20,6 +20,16 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
+  const isValidUrl = (url: string | null): boolean => {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
   const generateDiagramHandler = async () => {
     setIsLoading(true);
     setError(null);
@@ -52,35 +62,37 @@ export default function Home() {
     }
   };
 
-  const downloadDiagram = () => {
-    if (!diagramUrl) {
+  const downloadDiagram = async () => {
+    if (!diagramUrl || !isValidUrl(diagramUrl)) {
       toast({
-        title: 'No diagram to download',
-        description: 'Please generate a diagram first.',
+        title: 'No valid diagram to download',
+        description: 'Please generate a valid diagram first.',
       });
       return;
     }
 
-    fetch(diagramUrl)
-      .then(response => response.blob())
-      .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${formula}.${diagramUrl.split('.').pop()}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      })
-      .catch(err => {
-        toast({
-          title: 'Error downloading diagram',
-          description: err.message || 'Failed to download the diagram.',
-          variant: 'destructive',
-        });
-        console.error('Download error:', err);
+    try {
+      const response = await fetch(diagramUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `chemical_diagram.${diagramUrl.split('.').pop()}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      toast({
+        title: 'Error downloading diagram',
+        description: err.message || 'Failed to download the diagram.',
+        variant: 'destructive',
       });
+      console.error('Download error:', err);
+    }
   };
 
   const applySuggestion = (suggestion: string) => {
@@ -175,13 +187,23 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <div className="relative overflow-hidden rounded-md">
-              <Image
-                src={diagramUrl}
-                alt="Chemical Diagram"
-                width={500}
-                height={300}
-                style={{objectFit: 'contain', width: '100%', height: 'auto'}}
-              />
+              {isValidUrl(diagramUrl) ? (
+                <Image
+                  src={diagramUrl}
+                  alt="Chemical Diagram"
+                  width={500}
+                  height={300}
+                  style={{objectFit: 'contain', width: '100%', height: 'auto'}}
+                />
+              ) : (
+                <Image
+                  src={`https://picsum.photos/500/300`}
+                  alt="Placeholder"
+                  width={500}
+                  height={300}
+                  style={{objectFit: 'contain', width: '100%', height: 'auto'}}
+                />
+              )}
             </div>
           </CardContent>
         </Card>
