@@ -1,7 +1,6 @@
 'use client';
 
-import Image from 'next/image';
-import {useState} from 'react';
+import {useState, useRef, useEffect} from 'react';
 import {Button} from '@/components/ui/button';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {Input} from '@/components/ui/input';
@@ -12,33 +11,28 @@ import {Icons} from '@/components/icons';
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '@/components/ui/tooltip';
 import {toast} from '@/hooks/use-toast';
 import {cn} from '@/lib/utils';
+import dynamic from 'next/dynamic';
+
+const MolViewer = dynamic(() => import('@/components/mol-viewer'), {
+  ssr: false,
+});
 
 export default function Home() {
   const [formula, setFormula] = useState('');
-  const [diagramUrl, setDiagramUrl] = useState<string | null>(null);
+  const [molecularData, setMolecularData] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-
-  const isValidUrl = (url: string | null): boolean => {
-    if (!url) return false;
-    try {
-      new URL(url);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
 
   const generateDiagramHandler = async () => {
     setIsLoading(true);
     setError(null);
     setSuggestions([]);
-    setDiagramUrl(null);
+    setMolecularData(null);
 
     try {
       const diagramData = await generateDiagram({formula});
-      setDiagramUrl(diagramData.diagramUrl);
+      setMolecularData(diagramData.molecularData);
     } catch (err: any) {
       setError(err.message || 'Failed to generate diagram.');
 
@@ -62,39 +56,6 @@ export default function Home() {
     }
   };
 
-  const downloadDiagram = async () => {
-    if (!diagramUrl || !isValidUrl(diagramUrl)) {
-      toast({
-        title: 'No valid diagram to download',
-        description: 'Please generate a valid diagram first.',
-      });
-      return;
-    }
-
-    try {
-      const response = await fetch(diagramUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `chemical_diagram.${diagramUrl.split('.').pop()}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (err: any) {
-      toast({
-        title: 'Error downloading diagram',
-        description: err.message || 'Failed to download the diagram.',
-        variant: 'destructive',
-      });
-      console.error('Download error:', err);
-    }
-  };
-
   const applySuggestion = (suggestion: string) => {
     setFormula(suggestion);
   };
@@ -105,7 +66,7 @@ export default function Home() {
         <CardHeader>
           <CardTitle>ChemDraw AI</CardTitle>
           <CardDescription>
-            Enter a chemical compound formula to generate its diagram.
+            Enter a chemical compound formula to generate its 3D model.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -125,27 +86,9 @@ export default function Home() {
                   Generating
                 </>
               ) : (
-                'Generate Diagram'
+                'Generate 3D Model'
               )}
             </Button>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    onClick={downloadDiagram}
-                    disabled={!diagramUrl}
-                  >
-                    <Icons.download className="mr-2 h-4 w-4" />
-                    Download
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Download the generated diagram in the original format.
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
         </CardContent>
       </Card>
@@ -177,33 +120,17 @@ export default function Home() {
         </Alert>
       )}
 
-      {diagramUrl && (
+      {molecularData && (
         <Card className="mt-4 w-full max-w-md">
           <CardHeader>
-            <CardTitle>Chemical Diagram</CardTitle>
+            <CardTitle>3D Chemical Model</CardTitle>
             <CardDescription>
-              Diagram for chemical formula: {formula}
+              3D Model for chemical formula: {formula}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="relative overflow-hidden rounded-md">
-              {isValidUrl(diagramUrl) ? (
-                <Image
-                  src={diagramUrl}
-                  alt="Chemical Diagram"
-                  width={500}
-                  height={300}
-                  style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
-                />
-              ) : (
-                <Image
-                  src={`https://picsum.photos/500/300`}
-                  alt="Placeholder"
-                  width={500}
-                  height={300}
-                  style={{objectFit: 'contain', width: '100%', height: 'auto'}}
-                />
-              )}
+              <MolViewer molecularData={molecularData} />
             </div>
           </CardContent>
         </Card>

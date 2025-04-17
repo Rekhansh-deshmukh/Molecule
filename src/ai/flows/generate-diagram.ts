@@ -1,8 +1,8 @@
 'use server';
 /**
- * @fileOverview Generates a chemical compound diagram from a given formula.
+ * @fileOverview Generates a 3D molecular representation from a given formula.
  *
- * - generateDiagram - A function that generates the diagram.
+ * - generateDiagram - A function that generates the 3D molecular representation.
  * - GenerateDiagramInput - The input type for the generateDiagram function.
  * - GenerateDiagramOutput - The return type for the generateDiagram function.
  */
@@ -16,7 +16,7 @@ const GenerateDiagramInputSchema = z.object({
 export type GenerateDiagramInput = z.infer<typeof GenerateDiagramInputSchema>;
 
 const GenerateDiagramOutputSchema = z.object({
-  diagramUrl: z.string().describe('The URL of the generated chemical diagram.'),
+  molecularData: z.string().describe('The 3D molecular representation in SDF or PDB format.'),
 });
 export type GenerateDiagramOutput = z.infer<typeof GenerateDiagramOutputSchema>;
 
@@ -33,18 +33,15 @@ const prompt = ai.definePrompt({
   },
   output: {
     schema: z.object({
-      diagramUrl: z.string().describe('The URL of the generated chemical diagram.'),
+      molecularData: z.string().describe('The 3D molecular representation in SDF or PDB format.'),
     }),
   },
-  prompt: `You are an AI that generates diagrams of chemical compounds given their formula. Your goal is to find a reliable URL for an image of the chemical structure.
+  prompt: `You are an AI that generates 3D molecular representations of chemical compounds given their formula. Your goal is to generate the molecular representation in a suitable format (e.g., SDF or PDB) that can be rendered using 3Dmol.js.
 
-  Follow these steps:
-  1. First, try to find the diagram on PubChem using the following URL format: https://pubchem.ncbi.nlm.nih.gov/image/imgsrv.fcgi?cid=[PubChem CID]. You will need to determine the correct PubChem CID for the given formula. If you cannot reliably determine the PubChem CID, move to step 2.
-  2. If the diagram is not available on PubChem or you cannot determine the CID, use another reliable source, such as commonchemistry.org or Wikimedia Commons, ensuring the image is a clear representation of the compound's structure.
-  3. Ensure that the URL is publicly accessible and points directly to an image file (e.g., PNG, JPEG, SVG).
+  Given the chemical formula, generate the 3D molecular representation in SDF format. If you cannot find the SDF format, generate the representation in PDB format.
 
   Chemical Formula: {{{formula}}}
-  Diagram URL: `,
+  Molecular Data (SDF or PDB): `,
 });
 
 const generateDiagramFlow = ai.defineFlow<

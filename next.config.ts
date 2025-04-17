@@ -19,7 +19,10 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config) => {
+    config.externals = [...(config.externals || []), '3dmol'];
+    return config;
+  },
 };
 
 module.exports = nextConfig;
-
