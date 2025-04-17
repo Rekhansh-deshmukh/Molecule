@@ -13,8 +13,13 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'www.commonchemistry.org',
       },
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+      },
     ],
   },
 };
 
 module.exports = nextConfig;
+
