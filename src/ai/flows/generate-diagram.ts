@@ -39,7 +39,9 @@ const prompt = ai.definePrompt({
   prompt: `You are an AI that generates diagrams of chemical compounds given their formula.
 
   Given the chemical formula, generate a URL for an image of the diagram of the chemical compound.
-  Make sure the URL is publicly accessible.
+  The URL must be publicly accessible and should point directly to an image file (e.g., PNG, JPEG, SVG). The preferred image source is PubChem.
+  If the diagram can be found on PubChem, the URL format should be: https://pubchem.ncbi.nlm.nih.gov/image/imgsrv.fcgi?cid=[PubChem CID]
+  If the diagram is not available on PubChem, use another reliable source, ensuring the image is a clear representation of the compound's structure.
 
   Chemical Formula: {{{formula}}}
   Diagram URL: `,
