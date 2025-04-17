@@ -1,5 +1,7 @@
-# Firebase Studio
+git clone https://github.com/Rekhansh-deshmukh/Molecule
 
-This is a NextJS starter in Firebase Studio.
+cd Molecule
+npm install 
+npm run dev
 
-To get started, take a look at src/app/page.tsx.
+### Run the given link in the browser 
