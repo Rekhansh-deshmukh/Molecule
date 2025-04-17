@@ -36,12 +36,12 @@ const prompt = ai.definePrompt({
       diagramUrl: z.string().describe('The URL of the generated chemical diagram.'),
     }),
   },
-  prompt: `You are an AI that generates diagrams of chemical compounds given their formula.
+  prompt: `You are an AI that generates diagrams of chemical compounds given their formula. Your goal is to find a reliable URL for an image of the chemical structure.
 
-  Given the chemical formula, generate a URL for an image of the diagram of the chemical compound.
-  The URL must be publicly accessible and should point directly to an image file (e.g., PNG, JPEG, SVG). The preferred image source is PubChem.
-  If the diagram can be found on PubChem, the URL format should be: https://pubchem.ncbi.nlm.nih.gov/image/imgsrv.fcgi?cid=[PubChem CID]
-  If the diagram is not available on PubChem, use another reliable source, ensuring the image is a clear representation of the compound's structure.
+  Follow these steps:
+  1. First, try to find the diagram on PubChem using the following URL format: https://pubchem.ncbi.nlm.nih.gov/image/imgsrv.fcgi?cid=[PubChem CID]. You will need to determine the correct PubChem CID for the given formula. If you cannot reliably determine the PubChem CID, move to step 2.
+  2. If the diagram is not available on PubChem or you cannot determine the CID, use another reliable source, such as commonchemistry.org or Wikimedia Commons, ensuring the image is a clear representation of the compound's structure.
+  3. Ensure that the URL is publicly accessible and points directly to an image file (e.g., PNG, JPEG, SVG).
 
   Chemical Formula: {{{formula}}}
   Diagram URL: `,
